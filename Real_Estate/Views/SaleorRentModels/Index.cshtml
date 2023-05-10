@@ -1,0 +1,36 @@
+﻿@model IEnumerable<Real_Estate.Models.SaleorRentModel>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h1>Sale or Rent</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+                <td>
+                    <button><a asp-controller="SaleorRentModels" asp-action="Edit" asp-route-id="@item.Id" class="black-text-button"><i class="fas fa-edit"></i></a></button>
+                    <button><a asp-controller="SaleorRentModels" asp-action="Details" asp-route-id="@item.Id" class="black-text-button"><i class="far fa-file-alt"></i></a></button>
+                    <button><a asp-controller="SaleorRentModels" asp-action="Delete" asp-route-id="@item.Id" class="black-text-button"><i class="fas fa-trash-alt"></i></a></button>
+                </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -1,0 +1,27 @@
+﻿@model CreateAppointmentViewModel
+<div class="text-white">
+<h2>Create Appointment</h2>
+
+<form asp-action="CreateAppointment" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input asp-for="OwnerScheduleId" value="@Model.OwnerScheduleId" hidden/>
+    <input asp-for="EstatePropertyId" value="@Model.EstatePropertyId" hidden/>
+    <div>
+        Owner Schedule: @(Model.OwnerSchedule.startTime) - @(Model.OwnerSchedule.endTime)
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <td>Property Name</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>@Model.EstateProperty.Name</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>
+</div>

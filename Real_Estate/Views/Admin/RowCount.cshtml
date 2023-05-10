@@ -1,0 +1,222 @@
+﻿@using Microsoft.AspNetCore.Identity;
+@model AdminDashboardViewModel
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+@inject SignInManager<ApplicationUser> _signInManager
+
+    <style>
+    .body{
+    margin:30px;
+    }
+    .card {
+        border: none;
+        border-radius: 5px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        background-color: #fff;
+        margin-bottom: 30px;
+    }
+    #icons{
+        margin: auto 0px;
+        font-size:70px;
+    }
+
+    .statistic{
+        display:flex;
+        justify-content: space-around;
+    }
+
+    .card-body {
+        padding: 20px;
+        width: 300px;
+    }
+
+    .card-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+
+    .card-propcount {
+        background-color: #007bff;
+        color: #fff;
+        text-align:center;
+        font-size:30px;
+    }
+
+    #propCount{
+        background-color: #007bff;
+        border:none;
+        color: aliceblue;
+        font-size: 70px;
+        width: 70px;
+        font-family: monospace;
+        text-align: center;
+        padding:0px;
+    }
+
+    .card-apptcount {
+        background-color: #28a745;
+        color: #fff;
+        text-align: center;
+        font-size: 30px;
+    }
+
+    #apptCount {
+        background-color: #28a745;
+        border: none;
+        color: aliceblue;
+        font-size: 70px;
+        width: 70px;
+        font-family: monospace;
+        text-align: center;
+        padding: 0px;
+    }
+
+    .card-usercount {
+        background-color: #dc3545;
+        color: #fff;
+        text-align: center;
+        font-size: 30px;
+    }
+
+    #userCount {
+        background-color: #dc3545;
+        border: none;
+        color: aliceblue;
+        font-size: 70px;
+        width: 70px;
+        font-family: monospace;
+        text-align: center;
+        padding: 0px;
+    }
+
+    .form-label {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .form-control {
+        font-size: 16px;
+        padding: 12px 15px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        background-color: #f9f9f9;
+        color: #333;
+        box-shadow: none;
+        transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+</style>
+
+<section>
+<div class="body">
+     <h1>
+        Statistic
+    </h1>
+
+        <div class="statistic">
+
+        <div class="card card-propcount">
+            <div class="card-body">
+                 <h5 class="card-title">Total Properties</h5>
+                <div class="mb-3 d-flex justify-content-center">
+                    <i class="fa fa-building me-2" id="icons"></i>
+                        <a asp-controller="Properties" asp-action="Index"><input type="text" class="form-control" id="propCount" name="propCount" value="@Model.RowCount.PropertyCount" readonly></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-apptcount">
+            <div class="card-body">
+              <h5 class="card-title">Total Appointments</h5>
+                <div class="mb-3 d-flex justify-content-center">
+                    <i class="fas fa-clipboard-list" id="icons"></i>
+                        <input type="text" class="form-control" id="apptCount" name="apptCount" value="@Model.RowCount.AppointmentCount" readonly>
+                </div>
+        </div>
+    </div>
+
+<div class="card card-usercount">
+    <div class="card-body">
+        <h5 class="card-title">Total Users</h5>
+            <div class="mb-3 d-flex justify-content-center">
+                <i class="fas fa-users me-2" id="icons"></i>
+            <input type="text" class="form-control" id="userCount" name="userCount" value="@Model.RowCount.UserCount" readonly>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+</section>
+<section>
+<h1 class="whiteText" style="text-align:center;">Property</h1>
+    <table>
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="table-responsive" data-pattern="priority-columns">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th data-priority="1">Description</th>
+                                    <th data-priority="2">Address</th>
+                                    <th data-priority="3">ImageUrl</th>
+                                    <th data-priority="4">Price</th>
+                                    <th data-priority="5">Owner Name</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.EstateProperties)
+                                {
+                                            <tr>
+                                                <td>
+                                            @Html.DisplayFor(modelItem => item.Name)
+                                                </td>
+                                                <td>
+                                            @Html.DisplayFor(modelItem => item.Description)
+                                                </td>
+                                                <td>
+                                            @Html.DisplayFor(modelItem => item.Address)
+                                                </td>
+                                                <td>
+                                                    #
+                                                </td>
+                                                <td>
+                                            @Html.DisplayFor(modelItem => item.Price)
+                                                </td>
+
+                                                <td>
+                                            @Html.DisplayFor(modelItem => item.OwnerName)
+                                                </td>
+
+                                        @if (_signInManager.IsSignedIn(User) && User.IsInRole("Admin"))
+                                        {
+                                                          <td>
+                                                      <button><a asp-controller="Properties" asp-action="EditAdmin" asp-route-id="@item.Id" class="black-text-button Edit"><i class="fas fa-edit"></i></a></button>
+                                                <button><a asp-controller="Properties"  asp-action="Details" asp-route-id="@item.Id" class="black-text-button Details"><i class="far fa-file-alt"></i></a></button>
+                                                <button><a asp-controller="Properties" asp-action="Delete" asp-route-id="@item.Id" class="black-text-button Delete"><i class="fas fa-trash-alt"></i></a></button>
+                                                            </td>
+                                        }
+                                            </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div><!--end of .table-responsive-->
+                </div>
+            </div>
+        </div>
+    </table>
+    </section>

@@ -1,0 +1,78 @@
+@model CreatePropertyViewModel
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<head>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="C:\Users\COLLABERA\Desktop\Capstone01\Real_Estate\wwwroot\css\site.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<div class="row">
+    <div class="col-md-4">
+            <form class="forms" asp-action="Create">
+                <h1 class="whiteText" style="text-align:center;">Create Property</h1>
+            <div asp-validation-summary="ModelOnly" class="form-validation"></div>
+
+                 <label asp-for="Name" class="form-label">Name</label>
+                <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="form-validation"></span>
+
+            <div class="form-group">
+                    <label asp-for="Description" class="form-label">Description</label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="form-validation"></span>
+            </div>
+            <div class="form-group">
+                    <label asp-for="Address" class="form-label">Address</label>
+                <input asp-for="Address" class="form-control" />
+                <span asp-validation-for="Address" class="form-validation"></span>
+            </div>
+            <div class="form-group">
+                    <label asp-for="UrlImages" class="form-label">URL Image</label>
+                <input asp-for="UrlImages" class="form-control" />
+                    <span asp-validation-for="UrlImages" class="form-validation"></span>
+            </div>
+            <div class="form-group">
+                    <label asp-for="Price" class="form-label">Sale Price</label>
+                <input asp-for="Price" class="form-control" />
+                <span asp-validation-for="Price" class="form-validation"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SaleOrRentModelId" class="control-label"></label>
+                <select asp-for="SaleOrRentModelId" class="form-control" asp-items="ViewBag.SaleOrRentModelId">
+                    <option value="">Select an option</option>
+                </select>
+                <span asp-validation-for="SaleOrRentModelId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                    <label asp-for="OwnerName" class="form-label">Rent Price</label>
+                <input asp-for="OwnerName" class="form-control" />
+                <span asp-validation-for="OwnerName" class="form-validation"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PropertyCategoryId" class="control-label"></label>
+                <select asp-for="PropertyCategoryId" class="form-control" asp-items="ViewBag.PropertyCategoryId">
+                    <option value="">Select an option</option>
+                </select>
+                <span asp-validation-for="PropertyCategoryId" class="text-danger"></span>
+            </div>
+            <div class="buttonDiv">
+
+                <button type="submit" value="Create" class="blackText">Create</button>
+                <div>
+                    <a asp-action="Index" class="whiteText">Back to List</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

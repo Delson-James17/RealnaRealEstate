@@ -1,0 +1,114 @@
+﻿@using Microsoft.AspNetCore.Identity;
+@model IEnumerable<Real_Estate.Models.EstateProperty>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<head>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="C:\Users\COLLABERA\Desktop\Capstone01\Real_Estate\wwwroot\css\site.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+</head>
+@inject SignInManager<ApplicationUser> _signInManager
+<style>
+    h2 {
+        text-align: center;
+        padding: 20px 0;
+    }
+
+    .table-bordered {
+        border: 1px solid #ddd !important;
+    }
+
+    table caption {
+        padding: .5em 0;
+    }
+
+    table caption {
+        display: none;
+    }
+
+    .p {
+        text-align: center;
+        padding-top: 140px;
+        font-size: 14px;
+    }
+
+    td {
+        color: #000;
+    }
+
+    th {
+        color: #000;
+    }
+</style>
+<h1 class="whiteText" style="text-align:center;">Property</h1>
+ <form class="searchbar" method="get" asp-action="Index">
+        <div class="form-group1" style="display:flex;align-items: flex-end; ">
+                <input type="text" class="form-control" name="SearchString" value="@ViewData["CurrentFilter"]" />
+                 <button type="submit" style="padding:10px; margin-left:10px;"><i class="fa fa-search"></i></button>
+            </div>
+        </form>
+<p>
+        <button> <a asp-action="Create" class="black-text-button">Create New</a></button>
+</p>
+
+    <table>
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="table-responsive" data-pattern="priority-columns">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th> @Html.DisplayNameFor(model => model.Name)</th>
+                                    <th data-priority="1">@Html.DisplayNameFor(model => model.Description)s</th>
+                                    <th data-priority="2">@Html.DisplayNameFor(model => model.Address)</th>
+                                    <th data-priority="3">@Html.DisplayNameFor(model => model.UrlImages)</th>
+                                    <th data-priority="4">@Html.DisplayNameFor(model => model.Price)</th>
+                                    <th data-priority="5">@Html.DisplayNameFor(model => model.OwnerName)</th>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Name)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Description)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Address)
+                                        </td>
+                                        <td>
+                                            #
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Price)
+                                        </td>
+                                       <td>
+                                           @Html.DisplayFor(modelItem => item.OwnerName)
+                                         </td>
+
+                                        @if (_signInManager.IsSignedIn(User) && User.IsInRole("Admin"))
+                                        {
+                                            <td>
+                                            <button><a asp-action="EditAdmin" asp-route-id="@item.Id" class="black-text-button Edit"><i class="fas fa-edit"></i></a></button>
+                                             <button><a asp-action="Details" asp-route-id="@item.Id" class="black-text-button Details"><i class="far fa-file-alt"></i></a></button>
+                                                <button><a asp-action="Delete" asp-route-id="@item.Id" class="black-text-button Delete"><i class="fas fa-trash-alt"></i></a></button>
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div><!--end of .table-responsive-->
+                </div>
+            </div>
+        </div>
+    </table>

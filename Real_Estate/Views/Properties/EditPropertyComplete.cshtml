@@ -1,0 +1,58 @@
+﻿<div class="d-flex justify-content-center">
+    <div class="card-box">
+        <div class="success-icon">
+            <i class="fas fa-check"></i>
+        </div>
+        <h3>Success</h3>
+        <p>Congratulations, your Property has been successfully updated..</p>
+        <div class="d-flex justify-content-between">
+            <button><a asp-action="Properties" asp-controller="Properties" style="color: #000; text-decoration: none">Back to Properties</a></button>
+            @*            <button asp-action="AddSchedule" asp-controller="OwnerSchedule" style="color: #000;">Back</button>*@
+        </div>
+    </div>
+</div>
+
+
+<style>
+    .card-box {
+        width: 400px;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .success-icon {
+        color: #28a745;
+        font-size: 48px;
+        margin-bottom: 20px;
+    }
+
+    .btn {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+        .btn:hover {
+            background-color: #0062cc;
+        }
+
+</style>
+<script>
+    function showSuccessMessage() {
+        var cardBox = document.querySelector(".card-box");
+        cardBox.style.display = "block";
+    }
+
+    // Code to hide the card box message
+    function hideSuccessMessage() {
+        var cardBox = document.querySelector(".card-box");
+        cardBox.style.display = "none";
+    }
+</script>

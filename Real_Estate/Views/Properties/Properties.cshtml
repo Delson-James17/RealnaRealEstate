@@ -1,0 +1,152 @@
+@model IEnumerable<Real_Estate.Models.EstateProperty>
+
+@{
+    ViewData["Title"] = "Index";
+}
+<head>
+    <!-- Design by foolishdeveloper.com -->
+    <title>Glassmorphism login Form Tutorial in html css</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+    @*    <link href="~/css/site.css" rel="stylesheet" />*@
+    <!--Stylesheet-->
+
+</head>
+<style>
+    .section {
+        position: relative;
+        padding: 20px;
+    }
+    input{
+        width:700px !important;
+    }
+
+    .form-select {
+        width: fit-content;
+    }
+
+    .banner {
+/*        outline: solid 2px white;*/
+        background-color: #F4A424;
+        width: 100%;
+        height: 475px;
+        position: absolute;
+        left: 0%;
+    }
+</style>
+@*<body>*@
+@*    <div class="banner"></div>*@
+    <div class="propertyHeader">
+        <div class="container-property-header">
+            <img class="propertyImage" src="/lib/img/propertyImageYellow.png">
+            <h1 class="centered">Find a place you can call Home</h1>
+        </div>
+    </div>
+        <form class="searchbar d-flex justify-content-sm-between align-items-end"  method="get" asp-action="Properties">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        @Html.DropDownList("SaleOrRentModelId", (IEnumerable<SelectListItem>)ViewData["SaleOrRentModelId"], "All", new { @class = "form-select" })
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        @Html.DropDownList("PropertyCategoryId", (IEnumerable<SelectListItem>)ViewData["PropertyCategoryId"], "All", new { @class = "form-select" })
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" style="display:flex;align-items: flex-end; ">
+        <input type="text" id="form3Example4cg" class="form-control form-control-lg" name="SearchString" value="@ViewData["CurrentFilter"]" />
+                <button class="search-button" type="submit" style="padding:10px; margin-left:10px;"><i class="fa fa-search"></i></button>
+            </div>
+        </form>
+   
+    <div class="section">
+        <div class="container py-5">
+            <div class="row">
+                @foreach (var item in Model)
+                {
+                    <div class="col-md-12 col-lg-4 mb-4 mb-lg-0">
+                        <section class="articles">
+                            <article>
+                                <div class="article-wrapper">
+                                    <figure>
+                                        <img src="@Html.DisplayFor(modelItem => item.UrlImages)" alt="" />
+                                    </figure>
+                                    </div>
+                                    <div class="article-body">
+                                        <h3>@Html.DisplayFor(modelItem => item.Name)</h3>
+                                        <p>
+                                            Address: @Html.DisplayFor(modelItem => item.Address)
+
+                                        </p>
+                                        <p>
+                                        @{
+                                            string x = item.Description;
+                                            if (x != null && x.Length > 200){
+                                                x = x.Substring(0, 30);
+                                            }
+                                        }
+                                        @Html.Raw(x)...
+                                       
+                                        </p>
+                                        <div class="row about-list">
+                                            <div class="col-md-6">
+                                                <div class="media">
+                                                    <label>Sale Price:</label>
+                                                    <p>₱@Html.DisplayFor(modelItem => item.Price)</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="col-md-6">
+                                                    <div class="media">
+                                                        <label>Owner:</label>
+                                                        <p>@Html.DisplayFor(modelItem => item.OwnerName)</p>
+                                                    </div>
+                                                </div>
+                                        </div>
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="read-more">
+                                            Details <span class="sr-only">about this is some title</span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                            </svg>
+                                        </a>
+
+                                    </div>
+                                </div>
+                            </article>
+                        </section>
+                        @*                <div class="card">
+                    <div class="d-flex justify-content-between p-3">
+                    </div>
+                    <img src=" @Html.DisplayFor(modelItem => item.UrlImages)"
+                    class="card-img-top" alt="Laptop" />
+                    <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                    @* <p class="small"><a href="#!" class="text-muted">@Html.DisplayFor(modelItem => item.Propertytypes.Name)</a></p> *@
+                        @*<p class="small text-danger"><s>$1099</s></p>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-3">
+                    <h5 class="mb-0">@Html.DisplayFor(modelItem => item.Name)</h5>
+                    <h5 class="text-dark mb-0"><b>Sale</b> ₱ @Html.DisplayFor(modelItem => item.PriceifSale)</h5>
+                    <h5 class="text-dark mb-0"><b>Rent</b> ₱ @Html.DisplayFor(modelItem => item.PriceifRent)</h5>
+                    </div>
+                    <div>
+                    <h6 class="text-dark mb-0"> Address: @Html.DisplayFor(modelItem => item.Address)</h6>
+                    <h6 class="text-dark mb-0"> Owner:  @Html.DisplayFor(modelItem => item.owner.Name)</h6>
+                    </div>
+
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    </div>
+                    </div>*@
+                    </div>
+
+                }
+            </div>
+        </div>
+</div>
+@*</body>*@

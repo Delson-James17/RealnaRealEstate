@@ -1,0 +1,49 @@
+﻿@model RowCountViewModel
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+
+<div class="notification-bell">
+    <i class="fa fa-bell"></i>
+    <input type="text" class="form-control notification-number" id="apptCount " name="apptCount" value="@Model.AppointmentCount" readonly>
+</div>
+<style>
+    .notification-bell {
+        position: relative;
+        display: inline-block;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: #fff;
+        box-shadow: 0 0 5px rgba(0,0,0,0.3);
+        cursor: pointer;
+    }
+
+        .notification-bell i {
+            font-size: 20px;
+            color: #555;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+    .notification-number {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        font-size: 14px;
+        font-weight: bold;
+        background-color: #ff0000;
+        color: #fff;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        text-align: center;
+        line-height: 20px;
+    }
+
+</style>

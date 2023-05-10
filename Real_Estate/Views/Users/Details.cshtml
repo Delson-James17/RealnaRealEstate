@@ -1,0 +1,53 @@
+﻿@model ApplicationUser
+
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<head>
+    <!-- Design by foolishdeveloper.com -->
+    <title>Glassmorphism login Form Tutorial in html css</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+    @*    <link href="~/css/site.css" rel="stylesheet" />*@
+    <!--Stylesheet-->
+
+</head>
+
+
+
+    <form class="forms" asp-action="Edit">
+        <h3 class="whiteText">Details of User</h3>
+
+        <label for="username" class="whiteText">Full Name:</label>
+        <h2 class="whiteText">@Model.Name</h2>
+
+        <label for="password" class="whiteText">Age:</label>
+        <h2 class="whiteText">@Model.Age</h2>
+
+        <label for="password" class="whiteText">Date of Birth:</label>
+        <h2 class="whiteText">@Model.DOB</h2>
+
+        <label for="password" class="whiteText">Phone Number:</label>
+        <h2 class="whiteText">@Model.PhoneNumber</h2>
+
+        <label for="password" class="whiteText">Address:</label>
+        <h2 class="whiteText">@Model.Address</h2>
+
+        <label for="password" class="whiteText">URL Image:</label>
+        <h2 class="whiteText">@Model.UrlImages</h2>
+
+        <label for="password" class="whiteText">Email:</label>
+        <h2 class="whiteText">@Model.Email</h2>
+
+        <label for="password" class="whiteText">User Name:</label>
+        <h2 class="whiteText">@Model.UserName</h2>
+
+        <div class="buttonDiv">
+            <button asp-controller="Users" asp-action="GetAllUsers" class="blackText">Back to List</button>
+        </div>
+    </form>

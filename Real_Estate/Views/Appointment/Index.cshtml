@@ -1,0 +1,85 @@
+﻿@model List<Appointment>
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Appointment List";
+}
+@*<h2 class="text-center mb-4 text-white">@ViewData["Title"]</h2>*@
+<h1 class="whiteText" style="text-align: center;">Appointment List</h1>
+<style>
+    h2 {
+        text-align: center;
+        padding: 20px 0;
+    }
+
+    .table-bordered {
+        border: 1px solid #ddd !important;
+    }
+
+    table caption {
+        padding: .5em 0;
+    }
+
+    table caption {
+        display: none;
+    }
+
+    .p {
+        text-align: center;
+        padding-top: 140px;
+        font-size: 14px;
+    }
+
+    td {
+        color: #fff;
+    }
+
+    th {
+        color: #fff;
+    }
+</style>
+<table>
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="table-responsive" data-pattern="priority-columns">
+                    <table class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>Client Name</th>
+                                <th>Property Name</th>
+                                <th>Schedule</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Clients.Name)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.EstateProperty.Name)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.OwnerSchedules.startTime)
+                                        @Html.DisplayFor(modelItem => item.OwnerSchedules.endTime)
+
+                                    </td>
+                                    <td>
+                                        <a class="btn btn-danger" asp-controller="Appointment" title="DeleteSchedule" asp-action="Delete" asp-route-Id="@item.Id">
+                                            <i class="fas fa-user-times"></i>
+                                        </a>
+
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div><!--end of .table-responsive-->
+            </div>
+        </div>
+    </div>
+</table>

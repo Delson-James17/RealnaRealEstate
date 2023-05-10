@@ -1,0 +1,84 @@
+@model Real_Estate.ViewModels.EditPropertyViewModel
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+}
+<head>
+    <!-- Design by foolishdeveloper.com -->
+    <title>Glassmorphism login Form Tutorial in html css</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="C:\Users\COLLABERA\Desktop\Capstone01\Real_Estate\wwwroot\css\site.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+
+</head>
+<div class="form-container">
+    <form asp-action="EditAdmin" method="post">
+        <h1 class="whiteText" style="text-align: center;">Edit Property</h1>
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="Id" />
+        <div class="form-group">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Description" class="form-label"></label>
+            <input asp-for="Description" class="form-control" />
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Address" class="form-label"></label>
+            <input asp-for="Address" class="form-control" />
+            <span asp-validation-for="Address" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="UrlImages" class="form-label"></label>
+            <input asp-for="UrlImages" class="form-control" />
+            <span asp-validation-for="UrlImages" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Price" class="form-label">Sale Price</label>
+            <input asp-for="Price" class="form-control" />
+            <span asp-validation-for="Price" class="form-validation"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="SaleOrRentModelId" class="form-label">Sale Or Rent</label>
+            <select asp-for="SaleOrRentModelId" class="form-control" asp-items="ViewBag.SaleOrRentModelId">
+                <option value="">Select an option</option>
+            </select>
+            <span asp-validation-for="SaleOrRentModelId" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="OwnerName" class="form-label">Owner Name</label>
+            <input asp-for="OwnerName" class="form-control" />
+            <span asp-validation-for="OwnerName" class="form-validation"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="PropertyCategoryId" class="form-label">Property Category</label>
+            <select asp-for="PropertyCategoryId" class="form-control" asp-items="ViewBag.PropertyCategoryId">
+                <option value="">Select an option</option>
+            </select>
+            <span asp-validation-for="PropertyCategoryId" class="text-danger"></span>
+        </div>
+        <div class="d-grid gap-2 col-6 mx-auto">
+
+            <button type="submit" value="Save" class="blackText">Save</button>
+            <a asp-action="Index" class="whiteText" style="text-align: center;">Back to List</a>
+                
+
+        </div>
+
+    </form>
+</div>
+
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

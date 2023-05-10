@@ -1,0 +1,32 @@
+﻿@model Real_Estate.Models.PropertyListViewModel
+
+@{
+    ViewData["Title"] = "ListByCategory";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-4">
+            <h4>Select a category:</h4>
+            <ul class="list-group">
+                @foreach (var category in Model.Categories)
+                {
+                    <li class="list-group-item">
+                        <a href="@Url.Action("ListByCategory", new { id = category.Id })"
+                           class="@((category.Id == Model.Id) ? "active" : "")">@category.Name</a>
+                    </li>
+                }
+            </ul>
+        </div>
+        <div class="col-8">
+            <h4>Properties in category @Model.Categories.FirstOrDefault(c => c.Id == Model.Id)?.Name</h4>
+            <ul class="list-group">
+                @foreach (var property in Model.Properties)
+                {
+                    <li class="list-group-item">@property.Name</li>
+                }
+            </ul>
+        </div>
+    </div>
+</div>
+

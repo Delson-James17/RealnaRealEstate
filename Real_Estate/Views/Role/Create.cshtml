@@ -1,0 +1,32 @@
+﻿@using Real_Estate.ViewModels;
+@model RoleViewModel
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+<head>
+    <!-- Design by foolishdeveloper.com -->
+    <title>Glassmorphism login Form Tutorial in html css</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+    @*    <link href="~/css/site.css" rel="stylesheet" />*@
+    <!--Stylesheet-->
+
+</head>
+
+    <form method="post" asp-action="Create" asp-controller="Role" class="forms">
+        <h3 class="whiteText">Create Role</h3>
+
+        <label for="exampleInputEmail" class="whiteText">Role</label>
+        <input asp-for="Name" class="form-control form-control-lg" placeholder="Enter Role" />
+        <span asp-validation-for="Id" class="whiteText"></span>
+
+        <div class="buttonDiv">
+            <button type="submit">Create</button>
+        </div>
+
+    </form>

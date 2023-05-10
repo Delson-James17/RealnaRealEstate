@@ -1,0 +1,127 @@
+@using Microsoft.AspNetCore.Identity;
+@model ApplicationUser
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+
+}
+@inject SignInManager<ApplicationUser> _signInManager
+<head>
+    <!-- Design by foolishdeveloper.com -->
+    <title>Glassmorphism login Form Tutorial in html css</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="C:\Users\COLLABERA\Desktop\Capstone01\Real_Estate\wwwroot\css\site.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+    <!--Stylesheet-->
+</head>
+
+
+<div class="container">
+    <h1 class="whiteText" style="text-align:center;">Profile</h1>
+    <div class="main-body">
+        <div class="row gutters-sm">
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex flex-column align-items-center text-center">
+                            <img src="@Model.UrlImages" alt="Admin" class="rounded-circle" width="150">
+                            <div class="mt-3">
+                                <h4>@Model.UserName</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h6 class="mb-0">Full Name:</h6>
+                            </div>
+                            <div class="col-sm-9 text-secondary">
+                                @Model.Name
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h6 class="mb-0">Age:</h6>
+                            </div>
+                            <div class="col-sm-9 text-secondary">
+                                @Model.Age
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h6 class="mb-0">Date of Birth:</h6>
+                            </div>
+                            <div class="col-sm-9 text-secondary">
+                                @Model.DOB
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h6 class="mb-0">Address:</h6>
+                            </div>
+                            <div class="col-sm-9 text-secondary">
+                                @Model.Address
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h6 class="mb-0">Email:</h6>
+                            </div>
+                            <div class="col-sm-9 text-secondary">
+                                @Model.Email
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <h6 class="mb-0">Contact Number:</h6>
+                            </div>
+                            <div class="col-sm-9 text-secondary">
+                                @Model.PhoneNumber
+                            </div>
+                        </div>
+                        <hr />
+                        @if (_signInManager.IsSignedIn(User) && User.IsInRole("Admin") || User.IsInRole("Owner"))
+                        {
+
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <h6 class="mb-0">Zoom Link:</h6>
+                                </div>
+                                <div class="col-sm-9 text-secondary">
+                                    @Model.Zoomlink
+                                </div>
+                            </div>
+
+                            <hr />
+                        }
+@*                        <div class="row">
+                            <div class="col-sm-12">
+                                <a class="btn btn-info " target="__blank" href="https://www.bootdey.com/snippets/view/profile-edit-data-and-skills">Edit</a>
+                            </div>
+                        </div>*@
+                    </div>
+                    <div class="cols d-flex justify-content-around"> 
+                        <div style="width: 30%;">
+                        <button class="detailsButton"><a class="details-button-text" asp-controller="Users" asp-action="Update" asp-route-userId="@Model.Id" style="text-decoration: none;">Edit</a></button>
+                        </div>
+                        <div style=" width: 30%;">
+                        <button class="detailsButton"><a class="details-button-text" asp-controller="Account" asp-action="ChangePassword"  style="text-decoration: none;">Change Password</a></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+</div>

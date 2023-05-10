@@ -1,0 +1,88 @@
+﻿@using Microsoft.AspNetCore.Identity;
+@model List<IdentityRole>
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<head>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="C:\Users\COLLABERA\Desktop\Capstone01\Real_Estate\wwwroot\css\site.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+</head>
+<style>
+    h2 {
+        text-align: center;
+        padding: 20px 0;
+    }
+
+    .table-bordered {
+        border: 1px solid #000 !important;
+    }
+
+    table caption {
+        padding: .5em 0;
+    }
+
+    table caption {
+        display: none;
+    }
+
+    .p {
+        text-align: center;
+        padding-top: 140px;
+        font-size: 14px;
+    }
+
+    td {
+        color: #000;
+    }
+
+    th {
+        color: #000;
+    }
+</style>
+
+    <h1 class="whiteText" style="text-align:center;">Roles</h1>
+
+    <p>
+    <button> <a class="black-text-button" asp-controller="Role" asp-action="Create">Create New</a></button>
+
+    </p>
+
+    <table>
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="table-responsive" data-pattern="priority-columns">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var role in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => role.Name)
+                                        </td>
+                                        <td>
+                                        <button><a asp-controller="Role" asp-action="Update" asp-route-roleId="@role.Id" class="black-text-button"><i class="fas fa-edit"></i></a></button>
+                                            <button><a asp-controller="Role" asp-action="Details" asp-route-roleId="@role.Id" class="black-text-button"><i class="far fa-file-alt"></i></a></button>
+                                            <button><a asp-controller="Role" asp-action="Delete" asp-route-roleId="@role.Id" class="black-text-button"><i class="fas fa-trash-alt"></i></a></button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div><!--end of .table-responsive-->
+                </div>
+            </div>
+        </div>
+    </table>

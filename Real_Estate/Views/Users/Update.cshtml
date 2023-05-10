@@ -1,0 +1,74 @@
+﻿@using Microsoft.AspNetCore.Identity;
+@using Real_Estate.ViewModels;
+@model EditUserViewModel
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@inject SignInManager<ApplicationUser> _signInManager
+
+<head>
+    <!-- Design by foolishdeveloper.com -->
+    <title>Glassmorphism login Form Tutorial in html css</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="C:\Users\COLLABERA\Desktop\Capstone01\Real_Estate\wwwroot\css\site.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+
+</head>
+
+<div class="form-container">
+            <form asp-controller="Users" asp-action="Update" method="post">
+                <h1 class="whiteText" style="text-align:center;">Edit User</h1>
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="Id" />
+                <div class="form-group">
+                    <label asp-for="Name" class="whiteText">Name</label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Age" class="whiteText">Age</label>
+                    <input asp-for="Age" class="form-control" />
+                    <span asp-validation-for="Age" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="DOB" class="whiteText">Date of Birth</label>
+                    <input asp-for="DOB" class="form-control" />
+                    <span asp-validation-for="DOB" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Address" class="whiteText">Address</label>
+                    <input asp-for="Address" class="form-control" />
+                    <span asp-validation-for="Address" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="PhoneNumber" class="whiteText">Phone Number</label>
+                    <input asp-for="PhoneNumber" class="form-control" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="UrlImages" class="whiteText">URL Image</label>
+                    <input asp-for="UrlImages" class="form-control" />
+                    <span asp-validation-for="UrlImages" class="text-danger"></span>
+                </div>
+                  @if (_signInManager.IsSignedIn(User) && User.IsInRole("Admin") || User.IsInRole("Owner"))
+                    {
+                <div class="form-group">
+                    <label asp-for="Zoomlink" class="whiteText">Zoom Link</label>
+                    <input asp-for="Zoomlink" class="form-control" />
+                    <span asp-validation-for="Zoomlink" class="text-danger"></span>
+                </div>
+                    }
+                <div class="buttonDiv">
+                    <button input type="submit" class="blackText">Save</button>
+                    <div>
+                        <a asp-action="Profile" asp-controller="Account" class="whiteText">Back to Profile</a>
+                    </div>
+                </div>
+
+            </form>
+    </div>
+

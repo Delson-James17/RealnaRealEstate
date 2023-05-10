@@ -1,0 +1,86 @@
+﻿@model List<ApplicationUser>
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Owner List";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+}
+<style>
+    h2 {
+        text-align: center;
+        padding: 20px 0;
+    }
+
+    .table-bordered {
+        border: 1px solid #ddd !important;
+    }
+
+    table caption {
+        padding: .5em 0;
+    }
+
+    table caption {
+        display: none;
+    }
+
+    .p {
+        text-align: center;
+        padding-top: 140px;
+        font-size: 14px;
+    }
+
+    td {
+        color: #000;
+    }
+
+    th {
+        color: #000;
+    }
+</style>
+
+<table>
+    <h1 class="whiteText" style="text-align:center;">List Of Owners</h1>
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="table-responsive" data-pattern="priority-columns">
+                    <table class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>Full Name</th>
+                                <th>Age</th>
+                                <th>Date of Birth</th>
+                                <th>Phone Number</th>
+                                <th>Address</th>
+                                <th>URL Image</th>
+                                <th>Email</th>
+                                <th>User Name</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var users in Model)
+                            {
+                                <tr>
+                                    <td>@users.Name</td>
+                                    <td>@users.Age</td>
+                                    <td>@users.DOB</td>
+                                    <td>@users.Address</td>
+                                    <td>@users.PhoneNumber</td>
+                                    <td>#</td>
+                                    <td>@users.Email</td>
+                                    <td>@users.UserName</td>
+                                    <td>
+                                        <button><a asp-controller="Users" asp-action="Details" asp-route-userId="@users.Id" class="black-text-button"><i class="far fa-file-alt"></i></a></button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div><!--end of .table-responsive-->
+            </div>
+        </div>
+    </div>
+</table>

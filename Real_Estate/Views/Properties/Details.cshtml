@@ -1,0 +1,113 @@
+@using Microsoft.AspNetCore.Identity;
+@model Real_Estate.Models.EstateProperty
+
+@{
+    ViewData["Title"] = "Details";
+}
+@inject SignInManager<ApplicationUser> _signInManager
+
+<head>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+
+</head>
+
+<style>
+    .badge{
+        color: #F4A424;
+        font-size:30px;
+        -webkit-text-stroke: 0.5px black;
+        font-weight:bold;
+        position: absolute;
+        right: 20px;
+        top: 20px;
+    }
+</style>
+
+<h1 class="whiteText" style="text-align:center;">Property Details</h1>
+
+
+<section class="section about-section gray-bg" id="about">
+    <div class="col-md-6">
+        <div class="badge">
+            <p>@Html.DisplayFor(model => model.SaleOrRentModel.Name)</p>
+        </div>
+    </div>
+    <div class="container">
+
+        <div class="row align-items-center flex-row">
+            <div class="col-lg-6">
+                <div class="about-avatar">
+                    <img src="@Html.DisplayFor(model => model.UrlImages)" title="" alt="">
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="about-text go-to">
+                    <h3 class="dark-color">@Html.DisplayFor(model => model.Name)</h3>
+                    <h6 class="theme-color lead">Address: @Html.DisplayFor(model => model.Address)</h6>
+                    <p> @Html.DisplayFor(model => model.Description)</p>
+                    <div class="row about-list">
+                        <div class="col-md-6">
+                            <div class="media">
+                                <label>Price:</label>
+                                <p>₱ @Html.DisplayFor(model => model.Price)</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="media">
+                                <label>Owner:</label>
+                                <p> @Html.DisplayFor(model => model.OwnerName)</p>
+                            </div>
+                        </div>
+                           @if (_signInManager.IsSignedIn(User) && User.IsInRole("Admin") || User.IsInRole("Client"))
+                        {
+                            <div class="col-md-6">
+                                <div class="media">
+                                    <div class="detailsbuttonDiv">
+                                        <button class="detailsButton"> <a class="details-button-text" asp-controller="Appointment" asp-action="GetPropertyAppointments" asp-route-id="@Model.Id" style="text-decoration: none; font-size: 16px !important;">Get Appointments</a></button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        <div class="col-md-6">
+                            <div class="media">
+                                <div class="detailsbuttonDiv">
+                                    <button class="detailsButton"> <a class="details-button-text" asp-action="Properties" style="text-decoration: none;">Back to List</a></button>
+                                </div>
+                            </div>
+                            </div>
+                               @if (_signInManager.IsSignedIn(User) && User.IsInRole("Admin") || User.IsInRole("Client"))
+                        {
+                            <div class="col-md-6">
+                                <div class="media">
+                                    <div class="detailsbuttonDiv">
+                                        <button class="detailsButton"> <a class="details-button-text" asp-action="ZoomLink" asp-route-id="@Model.ApplicationUser.Id" style="text-decoration: none;">ZoomLink</a></button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        @if (_signInManager.IsSignedIn(User) && User.IsInRole("Admin") || User.IsInRole("Owner"))
+                                {
+                                    
+                                    <div class="col-md-6">
+                                        <div class="media">
+                                            <div class="detailsbuttonDiv">
+                                        <button class="detailsButton"> <a class="details-button-text" asp-controller="Properties" asp-action="Edit" asp-route-id="@Model.Id" style="text-decoration: none;">Edit</a></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+
+
+
+

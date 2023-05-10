@@ -1,0 +1,147 @@
+# RealState - Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: realestate
+
+# RealState - SQL Server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: realestatedb
+  namespace: realestate
+spec:
+  selector:
+    matchLabels:
+      app: realestatedb
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: realestatedb
+    spec:
+      containers:
+        - name: realestatedb
+          image: mcr.microsoft.com/mssql/server:2022-latest
+          ports:
+            - containerPort: 1433
+          env:
+            - name: ACCEPT_EULA
+              value: "Y"
+            - name: MSSQL_SA_PASSWORD
+              value: "P@ssword123"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: realestatedb
+  namespace: realestate
+  labels:
+    app: realestatedb
+spec:
+  ports:
+    - name: tcp
+      port: 1433
+      targetPort: 1433
+  selector:
+    app: realestatedb
+  type: ClusterIP
+
+# RealState - Web API
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: realstateapi
+  namespace: realestate
+spec:
+  selector:
+    matchLabels:
+      app: realestateapi
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: realestateapi
+    spec:
+      containers:
+        - name: realestateapi
+          image: delsonjames/real-state-api:1.0.5
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          env:
+            - name: ConnectionStrings__Server
+              value: realestatedb
+            - name: ConnectionStrings__DB
+              value: RealEDb
+            - name: ConnectionStrings__Username
+              value: sa
+            - name: ConnectionStrings__Password
+              value: P@ssword123
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: realestateapi
+  namespace: realestate
+  labels:
+    app: realestateapi
+spec:
+  ports:
+    - name: tcp
+      port: 6001
+      targetPort: 80
+  selector:
+    app: realestateapi
+  type: NodePort
+
+# RealState - Web Application
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: realestateweb
+  namespace: realestate
+spec:
+  selector:
+    matchLabels:
+      app: realestateweb
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: realestateweb
+    spec:
+      containers:
+        - name: realestateweb
+          image: delsonjames/real-state-web:1.0.5
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          env:
+            - name: ConnectionStrings__Server
+              value: realestatedb
+            - name: ConnectionStrings__DB
+              value: RealEDb
+            - name: ConnectionStrings__Username
+              value: sa
+            - name: ConnectionStrings__Password
+              value: P@ssword123
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: realestateweb
+  namespace: realestate
+  labels:
+    app: realestateweb
+spec:
+  ports:
+    - name: tcp
+      port: 5001
+      targetPort: 80
+  selector:
+    app: realestateweb
+  type: NodePort

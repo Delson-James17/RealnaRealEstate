@@ -1,0 +1,197 @@
+@using Microsoft.AspNetCore.Identity;
+@using System.Security.Claims;
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+    var user = HttpContextAccessor.HttpContext?.User;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Real_Estate</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Real_Estate.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    <link rel="icon" type="image/x-icon" href="~/lib/img/real_favicon.ico">
+
+    @inject SignInManager<ApplicationUser> _signInManager
+</head>
+<body>
+
+    <header>
+        <nav>
+            <ul>
+                <div class="logo">
+                    <a asp-controller="Properties" asp-action="Properties"><img class="propertyImage" src="~/lib/img/PJLI_LOGO.png" width="100px" style="padding:10px;"></a>
+                </div>
+                <hr>
+                <li><a class="nav-link" style="color: #F4A424;" asp-area="" asp-controller="Properties" asp-action="Properties">Home</a></li>
+                @if (_signInManager.IsSignedIn(User) && User.IsInRole("Admin")){
+                    <li><a class="nav-link" style="color: #F4A424;" asp-area="" asp-controller="Admin" asp-action="AdminPannel">Admin Control Panel</a></li>
+                }
+               
+
+                @if (_signInManager.IsSignedIn(User) && User.IsInRole("Owner"))
+                {
+                    <li>
+                    <li> <a class="nav-link" style="color: #F4A424;" asp-area="" asp-controller="Properties" asp-action="CreatePropOwner">Create Property</a></li>
+
+                    </li>
+                }
+                    
+                    <li>
+                    @if (_signInManager.IsSignedIn(User) && User.IsInRole("Owner") || User.IsInRole("Client"))
+                    {
+                        <a class="nav-link" style="color: #F4A424;" asp-area="" asp-controller="" asp-action="">Appointment </a>
+                    }
+                    <ul>
+                        
+                            @if (_signInManager.IsSignedIn(User) && User.IsInRole("Owner"))
+                            {
+                            <li> <a class="nav-link" style="color: #F4A424;" asp-area="" asp-controller="OwnerSchedule" asp-action="AddSchedule">Create Your Schedule</a></li>
+                            <li> <a class="nav-link" style="color: #F4A424;" asp-area="" asp-controller="OwnerSchedule" asp-action="OwnerScheduleList">Your Schedule</a></li>
+                            
+                              }
+                        @if (_signInManager.IsSignedIn(User) && User.IsInRole("Owner") || User.IsInRole("Client"))
+                        {
+                            <li> <a class="nav-link" style="color: #F4A424;" asp-area="" asp-controller="Appointment" asp-action="Index">Your Appointments</a></li>
+                        }
+                        
+                        </ul>
+                    </li>
+              
+
+
+                <span class="navbar-right-side" style="float:right;">
+                    <ul>
+                        @if (_signInManager.IsSignedIn(User))
+                        {
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" style="color: #F4A424;" asp-area="" asp-controller="Account" asp-action="Profile">My Profile</a>
+                                </li>
+                            }
+                          
+                            <li class="nav-item">
+                                <a class="nav-link" style="color: #F4A424;" asp-area="" asp-controller="Account" asp-action="LogOut">Log Out</a>
+                            </li>
+
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" style="color: #F4A424;" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" style="color: #F4A424;" asp-area="" asp-controller="Account"
+                               asp-action="Register">Register</a>
+                            </li>
+                        }
+                    </ul>
+                </span>
+
+            </ul>
+        </nav>
+       @* <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Real_Estate</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Properties" asp-action="Properties">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" 
+                        </li>
+                        @if (_signInManager.IsSignedIn(User) && User.IsInRole("Admin") || User.IsInRole("Owner"))
+                        {
+                            <li class="nav-item dropdown" id="myDropdown">
+                                <a class="nav-link dropdown-toggle text-dark" href="#" data-bs-toggle="dropdown"> Property Creation </a>
+                                <ul class="dropdown-menu">
+                                    <li> <a class="dropdown-item" asp-area="" asp-controller="Properties" asp-action="Index">Property</a></li>
+                                    <li> <a class="dropdown-item" asp-area="" asp-controller="Properties" asp-action="Create">Create Property</a></li>
+                                </ul>
+
+                            </li>
+                        }
+                        @if (_signInManager.IsSignedIn(User) && User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="PropertyTypes" asp-action="Index">PropertyTypes</a>
+                            </li>
+
+                            <li class="nav-item dropdown" id="myDropdown">
+                                <a class="nav-link dropdown-toggle text-dark" href="#" data-bs-toggle="dropdown"> Appointment </a>
+                                <ul class="dropdown-menu">
+                                    <li> <a class="dropdown-item" asp-controller="Appointments" asp-action="Index"> Apointment List </a></li>
+                                    <li> <a class="dropdown-item" asp-area="" asp-controller="Appointments" asp-action="Create">Appointment</a></li>
+                                </ul>
+
+                            </li>
+
+                            <li class="nav-item dropdown" id="myDropdown">
+                                <a class="nav-link dropdown-toggle text-dark" href="#" data-bs-toggle="dropdown"> Roles </a>
+                                <ul class="dropdown-menu">
+                                    <li> <a class="dropdown-item" asp-controller="Role" asp-action="Create"> Create Role </a></li>
+                                    <li> <a class="dropdown-item" asp-controller="Role" asp-action="GetAllRoles">  All Roles </a></li>
+                                </ul>
+                            </li>
+                                    <li> <a class="dropdown-item" asp-controller="Users" asp-action="GetAllUsers"> Users </a></li>
+                               
+                        }
+                    </ul>
+                     
+                    <ul class="navbar-nav flex-grow-2">
+                        @if (_signInManager.IsSignedIn(User))
+                        {
+                           <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Profile">@User.Identity.Name</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="LogOut">Log Out</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Account"
+                               asp-action="Register">Register</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>*@
+        
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+@*    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2023 - Real_Estate - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>*@
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+        
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,29 @@
+﻿@using Microsoft.AspNetCore.Identity;
+@model IdentityRole
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+<head>
+    <!-- Design by foolishdeveloper.com -->
+    <title>Glassmorphism login Form Tutorial in html css</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+</head>
+
+<form class="forms" asp-action="Edit">
+    <h1 class="whiteText">Role Details</h1>
+
+    <label for="username" class="whiteText">Name</label>
+    <h2 class="whiteText">@Html.DisplayFor(model => model.Name)</h2>
+
+    <div class="buttonDiv">
+        <button asp-controller="Role" asp-action="Update" asp-route-Id="@Model.Id" class="blackText">Edit</button>
+    </div>
+    <div class="buttonDiv">
+        <a asp-action="GetAllRoles" class="whiteText">Back to List</a>
+    </div>
+</form>

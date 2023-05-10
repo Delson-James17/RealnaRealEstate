@@ -1,0 +1,75 @@
+﻿@model OwnerSchedule
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Add Schedule";
+}
+<head>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+
+</head>
+
+@*<h2 class="text-center mb-4 text-white">@ViewData["Title"]</h2>
+<form asp-action="AddSchedule" method="post" asp-controller="OwnerSchedule">
+    <div asp-validation-summary="ModelOnly" class="form-validation"></div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-group">
+
+            </div>
+            <div class="form-group">
+                <label asp-for="startTime" class="control-label" style="color: #F4A424;">Select a start time</label>
+                <input type="datetime-local" asp-for="startTime" class="form-control" />
+                <span asp-validation-for="startTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="endTime" class="control-label" style="color: #F4A424;">Select end time</label>
+                <input type="datetime-local" asp-for="endTime" class="form-control" />
+                <span asp-validation-for="endTime" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Create" class="btn btn-primary" style="background:#F4A424;" />
+    </div>
+</form>*@
+
+<div class="form-container">
+    <form asp-action="AddSchedule" asp-controller="OwnerSchedule" method="post">
+        <div asp-validation-summary="ModelOnly" class="form-validation"></div>
+
+        @if (User.IsInRole("Admin"))
+        {
+            @* var UserId = _userManager.GetUserId(User);*@
+            //@Html.DropDownList("doctorId",ViewBag.options as SelectList ,ViewBag.option?[0], new {@class ="form-control"})
+            @Html.DropDownListFor( m => m.OwnerId ,ViewBag.options as SelectList, new {@class ="form-control"})
+            <span asp-validation-for="OwnerId" class="text-danger"></span>
+        }
+        else
+        {
+            <input type="text" hidden asp-for="OwnerId" class="form-control" value="@ViewBag.MyValue" />
+        }
+
+        <h1 class="whiteText" style="text-align: center;">Add Schedule</h1>
+
+        <label for="startTime" class="form-label">Select a start time</label>
+        <input type="datetime-local" asp-for="startTime" id="form3Example3cg" class="form-control form-control-lg">
+        <span asp-validation-for="startTime" class="form-validation"></span>
+
+        <label for="endTime" class="form-label">Select a end time</label>
+        <input type="datetime-local" asp-for="endTime" id="form3Example3cg" class="form-control form-control-lg">
+        <span asp-validation-for="endTime" class="form-validation"></span>
+
+
+
+
+        <div class="d-grid gap-2 col-6 mx-auto">
+            <button type="submit" value="Create">Create</button>
+        </div>
+
+    </form>
+</div>
+  
