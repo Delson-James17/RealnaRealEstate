@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Real_Estate.Data;
 using Real_Estate.Models;
-
+using Real_Estate.Repository.OwnerSchedules;
 
 namespace Real_Estate.Controllers
 {
@@ -13,18 +12,22 @@ namespace Real_Estate.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly RealEDbContext _dbContext;
+        private readonly IOwnerScheduleRepository _ownerScheduleRepository;
 
         public OwnerScheduleController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             RoleManager<IdentityRole> roleManager,
-            RealEDbContext dbContext)
+            RealEDbContext dbContext,
+            IOwnerScheduleRepository ownerScheduleRepository)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
             _dbContext = dbContext;
+            this._ownerScheduleRepository = ownerScheduleRepository;
         }
+
         public IActionResult AppointmentComplete()
         {
             return View();
@@ -35,18 +38,15 @@ namespace Real_Estate.Controllers
             return View();
         }
 
-        public IActionResult OwnerScheduleList()
+        public async Task<IActionResult> OwnerScheduleList()
         {
-            if (User.IsInRole("Owner"))
-            {
-                var ownerId = _userManager.GetUserId(User);
-                var ownerSchedules = _dbContext.OwnerSchedules.Where(s => s.OwnerId == ownerId).ToList();
-                return View(ownerSchedules);
-            }
+            string? ownerId = User.IsInRole("Owner") ? this._userManager.GetUserId(User) : null;
 
-            var schedules = _dbContext.OwnerSchedules.ToList();
-            return View(schedules);
+            var ownerSchedules = await this._ownerScheduleRepository.GetOwnerScheduleList(ownerId);
+
+            return View(ownerSchedules);
         }
+
         [HttpGet]
         public IActionResult AddSchedule()
         {
@@ -61,72 +61,70 @@ namespace Real_Estate.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddSchedule(OwnerSchedule sched)
+        public async Task<IActionResult> AddSchedule(OwnerSchedule sched)
         {
             string ownerId = _userManager.GetUserId(User);
+            var ownerSchedules = this._ownerScheduleRepository.GetOwnerScheduleList(ownerId);
+
             ViewBag.MyValue = ownerId;
-            var ownerSchedules = _dbContext.OwnerSchedules
-                .Where(s => s.OwnerId == ownerId)
-                .ToList();
             sched.OwnerId = ownerId;
 
-            if (sched.startTime.HasValue && sched.endTime.HasValue && sched.startTime.Value >= sched.endTime.Value)
+            if (sched.startTime.Value >= sched.endTime.Value)
             {
                 ModelState.AddModelError("startTime", "Start time must be before the end time.");
+                return View(sched);
             }
+
             if (!ModelState.IsValid)
             {
                 return View(sched);
             }
 
-            _dbContext.OwnerSchedules.Add(sched);
-            _dbContext.SaveChanges();
+            await this._ownerScheduleRepository.AddOwnerSchedule(sched);
+
             return RedirectToAction(nameof(AppointmentComplete));
         }
+
         [HttpGet]
-        public IActionResult UpdateSchedule(int id)
+        public async Task<IActionResult> UpdateSchedule(int id)
         {
-            OwnerSchedule schedule = _dbContext.OwnerSchedules.FirstOrDefault(s => s.Id == id);
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            OwnerSchedule schedule = await this._ownerScheduleRepository.GetOwnerScheduleById(id);
+
             if (schedule == null)
             {
                 return NotFound();
             }
+
             return View(schedule);
         }
 
         [HttpPost]
-        public IActionResult UpdateSchedule(OwnerSchedule updatedSchedule)
+        public async Task<IActionResult> UpdateSchedule(OwnerSchedule updatedSchedule)
         {
-            OwnerSchedule oldSchedule = _dbContext.OwnerSchedules.FirstOrDefault(s => s.Id == updatedSchedule.Id);
-            if (oldSchedule == null)
+            if(!ModelState.IsValid)
             {
-                return NotFound();
+                return View(updatedSchedule);
             }
 
-           // oldSchedule.dayOfWeek = updatedSchedule.dayOfWeek;
-            oldSchedule.startTime = updatedSchedule.startTime;
-            oldSchedule.endTime = updatedSchedule.endTime;
+            await this._ownerScheduleRepository.UpdateOwnerSchedule(updatedSchedule);
 
-            _dbContext.SaveChanges();
-
-           // return RedirectToAction(nameof(OwnerScheduleList));
             return RedirectToAction("UpdateScheduleComplete", "OwnerSchedule");
         }
-        public IActionResult DeleteSchedule(int id)
+
+        public async Task<IActionResult> DeleteSchedule(int id)
         {
-            var schedule = _dbContext.OwnerSchedules.FirstOrDefault(s => s.Id == id);
-            if (schedule == null)
+            if(id == null)
             {
                 return NotFound();
             }
 
-            _dbContext.OwnerSchedules.Remove(schedule);
-            _dbContext.SaveChanges();
-
+            await this._ownerScheduleRepository.DeleteOwnerScheduleById(id);
             return RedirectToAction(nameof(OwnerScheduleList));
         }
-
     }
 }
-    
-
