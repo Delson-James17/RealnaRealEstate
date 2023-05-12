@@ -11,8 +11,9 @@ namespace Real_Estate.Repository.Users
         private readonly RealEDbContext _realEDbContext;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public UsersRepository(UserManager<ApplicationUser> userManager)
+        public UsersRepository(RealEDbContext realEDbContext, UserManager<ApplicationUser> userManager)
         {
+            this._realEDbContext = realEDbContext;
             this._userManager = userManager;
         }
 

@@ -48,7 +48,7 @@ namespace Real_Estate.Controllers
         public async Task<IActionResult> Delete(string userId)
         {
             var deletedUser = await this._usersRepository.DeleteUserById(userId);
-            return RedirectToAction(controllerName: "Users", actionName: "GetAllUsers"); // reload the getall page it self
+            return RedirectToAction(controllerName: "Users", actionName: "GetAllUsers");
         }
 
         [HttpGet]
