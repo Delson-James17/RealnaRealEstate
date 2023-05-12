@@ -4,64 +4,70 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Real_Estate.Data;
 using Real_Estate.Models;
+using Real_Estate.Repository.Users;
 using Real_Estate.ViewModels;
 using System.Data;
 using System.Security.Claims;
 
 namespace Real_Estate.Controllers
 {
-    
+
     public class UsersController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RealEDbContext _context;
+        private readonly IUsersRepository _usersRepository;
 
-        public UsersController(UserManager<ApplicationUser> userManager, RealEDbContext context)
+        public UsersController(UserManager<ApplicationUser> userManager, 
+                                RealEDbContext context,
+                                IUsersRepository usersRepository)
         {
             _userManager = userManager;
             _context = context;
+            this._usersRepository = usersRepository;
         }
 
         public IActionResult UpdatedSuccessfully()
         {
             return View();
         }
+
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllUsers()
         {
-            var users = await _userManager.Users.ToListAsync();
+            var users = await this._usersRepository.GetAllRegisteredUsers();
             return View(users);
         }
-        public IActionResult Details(string userId)
+
+        public async Task<IActionResult> Details(string userId)
         {
-            var user = _userManager.Users.FirstOrDefault(u => u.Id == userId);
+            var user = await this._usersRepository.GetUserById(userId);
             return View(user);
         }
+
         public async Task<IActionResult> Delete(string userId)
         {
-            var user = _userManager.Users.FirstOrDefault(u => u.Id == userId);
-            var userlist = await _userManager.DeleteAsync(user);
+            var deletedUser = await this._usersRepository.DeleteUserById(userId);
             return RedirectToAction(controllerName: "Users", actionName: "GetAllUsers"); // reload the getall page it self
         }
-
 
         [HttpGet]
         public async Task<IActionResult> Update(string userId)
         {
-            var users = _userManager.Users.FirstOrDefault(u => u.Id == userId);
-            var roles = await _userManager.GetRolesAsync(users);
+            var userWithRole = await this._usersRepository.GetUserWithRoleById(userId);
+
             EditUserViewModel userViewModel = new EditUserViewModel()
             {
-                Name = users.Name,
-                Age = users.Age,
-                Address = users.Address,
-                DOB = (DateTime)users.DOB,
-                PhoneNumber = users.PhoneNumber,
-                UrlImages = users.UrlImages,
-                Zoomlink = users.Zoomlink,
-                Roles = roles
-
+                Name = userWithRole.Name,
+                Age = userWithRole.Age,
+                Address = userWithRole.Address,
+                DOB = (DateTime)userWithRole.DOB,
+                PhoneNumber = userWithRole.PhoneNumber,
+                UrlImages = userWithRole.UrlImages,
+                Zoomlink = userWithRole.Zoomlink,
+                Roles = userWithRole.Roles
             };
+
             return View(userViewModel);
         }
 
@@ -70,46 +76,40 @@ namespace Real_Estate.Controllers
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            ApplicationUser? userProfile = await _context.ApplicationUsers.FindAsync(userId);
+            var updateUserStatus = await this._usersRepository.UpdateUser(userId, user);
 
-            userProfile.Name = user.Name;
-            userProfile.Age = user.Age;
-            userProfile.Address = user.Address;
-            userProfile.DOB = user.DOB;
-            userProfile.Zoomlink = user.Zoomlink;
-            userProfile.PhoneNumber = user.PhoneNumber;
-            var updateuserinfo = await _userManager.UpdateAsync(userProfile);
-            if (updateuserinfo.Succeeded)
+            if (updateUserStatus.Succeeded)
             {
-                //return RedirectToAction("Profile", "Account");
                 return RedirectToAction("UpdatedSuccessfully", "Users");
             }
             else
             {
-                foreach (var error in updateuserinfo.Errors)
+                foreach (var error in updateUserStatus.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
+                
                 return View();
             }
         }
+        
         [HttpGet]
         public async Task<IActionResult> UpdateAdmin(string userId)
-        {
-            var users = _userManager.Users.FirstOrDefault(u => u.Id == userId);
-            var roles = await _userManager.GetRolesAsync(users);
+        {   
+            var userWithRole = await this._usersRepository.GetUserWithRoleById(userId);
+
             EditUserViewModel userViewModel = new EditUserViewModel()
             {
-                Name = users.Name,
-                Age = users.Age,
-                Address = users.Address,
-                DOB = (DateTime)users.DOB,
-                PhoneNumber = users.PhoneNumber,
-                UrlImages = users.UrlImages,
-                Zoomlink = users.Zoomlink,
-                Roles = roles
-
+                Name = userWithRole.Name,
+                Age = userWithRole.Age,
+                Address = userWithRole.Address,
+                DOB = (DateTime)userWithRole.DOB,
+                PhoneNumber = userWithRole.PhoneNumber,
+                UrlImages = userWithRole.UrlImages,
+                Zoomlink = userWithRole.Zoomlink,
+                Roles = userWithRole.Roles
             };
+
             return View(userViewModel);
         }
 
@@ -118,27 +118,19 @@ namespace Real_Estate.Controllers
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            ApplicationUser? userProfile = await _context.ApplicationUsers.FindAsync(userId);
+            var updateUserStatus = await this._usersRepository.UpdateUser(userId, user);
 
-            userProfile.Name = user.Name;
-            userProfile.Age = user.Age;
-            userProfile.Address = user.Address;
-            userProfile.DOB = user.DOB;
-            userProfile.Zoomlink = user.Zoomlink;
-            userProfile.PhoneNumber = user.PhoneNumber;
-            var updateuserinfo = await _userManager.UpdateAsync(userProfile);
-            if (updateuserinfo.Succeeded)
+            if (updateUserStatus.Succeeded)
             {
-                // return RedirectToAction("GetAllUsers");
                 return RedirectToAction("UpdatedSuccessfully", "Users");
-
             }
             else
             {
-                foreach (var error in updateuserinfo.Errors)
+                foreach (var error in updateUserStatus.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
+
                 return View();
             }
         }
