@@ -5,12 +5,16 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ActionConstraints;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Real_Estate.Data;
 using Real_Estate.Models;
+using Real_Estate.Repository.EstateProperties;
+using Real_Estate.Repository.PropertyCategoryRepositories;
+using Real_Estate.Repository.SalesOrRents;
 using Real_Estate.ViewModels;
 
 namespace Real_Estate.Controllers
@@ -19,10 +23,22 @@ namespace Real_Estate.Controllers
     public class PropertiesController : Controller
     {
         private readonly RealEDbContext _context;
+        private readonly IEstatePropertyRepository _estatePropertyRepository;
+        private readonly IPropertyCategoryRepository _propertyCategoryRepository;
+        private readonly ISaleOrRentRepository _saleOrRentRepository;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public PropertiesController(RealEDbContext context)
+        public PropertiesController(RealEDbContext context, 
+                                    IEstatePropertyRepository estatePropertyRepository, 
+                                    IPropertyCategoryRepository propertyCategoryRepository,
+                                    ISaleOrRentRepository saleOrRentRepository,
+                                    UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            this._estatePropertyRepository = estatePropertyRepository;
+            this._propertyCategoryRepository = propertyCategoryRepository;
+            this._saleOrRentRepository = saleOrRentRepository;
+            this._userManager = userManager;
         }
 
         public IActionResult CreatePropertyComplete()
@@ -35,29 +51,17 @@ namespace Real_Estate.Controllers
             return View();
         }
 
-
-        // GET: Properties
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Index(string SearchString)
+        public async Task<IActionResult> Index(string? searchString)
         {
-            var properties = await this._context.PropertyCategories.Select(p => new PropertyCategory
-            {
-                Id = p.Id,
-                Name = p.Name
+            var propertyCategories = await this._propertyCategoryRepository.GetAllPropertyCategoriesNames();
+            var estateProperties = await this._estatePropertyRepository.GetEstatePropertiesBySearchString(searchString, null, null);
+            
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["PropertyCategoryId"] = new SelectList(propertyCategories, "Id", "Name");
+            ViewData["SaleOrRentModelId"] = new SelectList(propertyCategories, "Id", "Name");
 
-            }).ToListAsync();
-            //var realEstateDbContext = _context.Properties.Include(p => p.Propertytypes).Include(p => p.owner);
-            //return View(await realEstateDbContext.ToListAsync());
-            ViewData["CurrentFilter"] = SearchString;
-            var property = from b in _context.EstateProperties
-                           select b;
-            if (!String.IsNullOrEmpty(SearchString))
-            {
-                property = property.Where(b => b.Name.Contains(SearchString) || b.Address.Contains(SearchString) || b.PropertyCategory.Name.Contains(SearchString));
-            }
-            ViewData["PropertyCategoryId"] = new SelectList(properties, "Id", "Name");
-            ViewData["SaleOrRentModelId"] = new SelectList(properties, "Id", "Name");
-            return View(await property.AsNoTracking().ToListAsync());
+            return View(estateProperties);
         }
 
         public async Task<IActionResult> ZoomLink(string id)
@@ -66,400 +70,278 @@ namespace Real_Estate.Controllers
             ViewBag.User = user;
             return View();
         }
-        public async Task<IActionResult> Properties(string SearchString, int? SaleOrRentModelId, int? PropertyCategoryId)
+        public async Task<IActionResult> Properties(string? searchString, int? saleOrRentModelId, int? propertyCategoryId)
         {
-            // Retrieve all property categories and sale or rent models
-            var propertyCategories = await this._context.PropertyCategories.ToListAsync();
-            var saleOrRentModels = await this._context.SaleorRentModel.ToListAsync();
+            var propertyCategories = await this._propertyCategoryRepository.GetAllPropertyCategories();
+            var saleOrRentModels = await this._saleOrRentRepository.GetAllSaleOrRent();
+            var estateProperties = await this._estatePropertyRepository.GetEstatePropertiesBySearchString(searchString, saleOrRentModelId, propertyCategoryId);
 
-            ViewData["CurrentFilter"] = SearchString;
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["SaleOrRentModelId"] = new SelectList(saleOrRentModels, "Id", "Name", saleOrRentModelId);
+            ViewData["PropertyCategoryId"] = new SelectList(propertyCategories, "Id", "Name", propertyCategoryId);
 
-            // Retrieve all estate properties
-            var estateProperties = from p in _context.EstateProperties
-                                   select p;
-
-            // Apply search filters if specified
-            if (!String.IsNullOrEmpty(SearchString))
-            {
-                estateProperties = estateProperties.Where(p =>
-                    p.Name.Contains(SearchString) ||
-                    p.Address.Contains(SearchString) ||
-                    p.PropertyCategory.Name.Contains(SearchString) ||
-                    p.SaleOrRentModel.Name.Contains(SearchString)); 
-            }
-
-            if (SaleOrRentModelId.HasValue)
-            {
-                estateProperties = estateProperties.Where(p => p.SaleOrRentModelId == SaleOrRentModelId.Value);
-            }
-
-            if (PropertyCategoryId.HasValue)
-            {
-                estateProperties = estateProperties.Where(p => p.PropertyCategoryId == PropertyCategoryId.Value);
-            }
-
-            // Create dropdown list for sale or rent model
-            ViewData["SaleOrRentModelId"] = new SelectList(saleOrRentModels, "Id", "Name", SaleOrRentModelId);
-
-            // Create dropdown list for property category
-            ViewData["PropertyCategoryId"] = new SelectList(propertyCategories, "Id", "Name", PropertyCategoryId);
-
-            return View(await estateProperties.AsNoTracking().ToListAsync());
+            return View(estateProperties);
         }
 
-        /* public async Task<IActionResult> Properties(string SearchString)
-         {
-             var properties = await this._context.PropertyCategories.Select(p => new PropertyCategory
-             {
-                 Id = p.Id,
-                 Name = p.Name
-
-             }).ToListAsync();
-             var salerent = await this._context.SaleorRentModel.Select(p => new SaleorRentModel
-             {
-                 Id = p.Id,
-                 Name = p.Name
-
-             }).ToListAsync();
-             // var realEstateDbContext = _context.Properties.Include(p => p.Propertytypes).Include(p => p.owner);
-             //return View(await realEstateDbContext.ToListAsync());
-
-             ViewData["CurrentFilter"] = SearchString;
-             var property = from b in _context.EstateProperties
-                            select b;
-             if (!String.IsNullOrEmpty(SearchString))
-             {
-                 property = property.Where(b => b.Name.Contains(SearchString)|| b.Address.Contains(SearchString)|| b.PropertyCategory.Name.Contains(SearchString)|| b.SaleOrRentModel.Name.Contains(SearchString));
-             }
-             ViewData["SaleOrRentModelId"] = new SelectList(salerent, "Id", "Name");
-             ViewData["PropertyCategoryId"] = new SelectList(properties, "Id", "Name");
-             return View(await property.AsNoTracking().ToListAsync());
-         }*/
         [Authorize(Roles = "Admin, Client, Owner")]
-
-        // GET: Properties/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.EstateProperties == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var @property = await _context.EstateProperties
-                .Include(a => a.ApplicationUser)
-                .Include(a => a.PropertyCategory)
-                .Include(a => a.SaleOrRentModel)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (@property == null)
-            {
-                return NotFound();
-            }
+            var estateProperty = await this._estatePropertyRepository.GetEstatePropertyWithRelatedEntitiesById((int)id);
 
-            return View(@property);
+            return View(estateProperty);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["SaleOrRentModelId"] = new SelectList(_context.SaleorRentModel, "Id", "Name");
-            ViewData["PropertyCategoryId"] = new SelectList(_context.PropertyCategories, "Id", "Name");
+            var propertyCategories = await this._propertyCategoryRepository.GetAllPropertyCategories();
+            var saleOrRentModels = await this._saleOrRentRepository.GetAllSaleOrRent();
+
+            ViewData["PropertyCategoryId"] = new SelectList(propertyCategories, "Id", "Name");
+            ViewData["SaleOrRentModelId"] = new SelectList(saleOrRentModels, "Id", "Name");
+
             return View();
         }
 
         [Authorize(Roles = "Admin")]
         [ValidateAntiForgeryToken]
         [HttpPost]
-        public async Task<IActionResult> Create(CreatePropertyViewModel property)
+        public async Task<IActionResult> Create(CreatePropertyViewModel newProperty)
         {
-            if (ModelState.IsValid)
+            string currentlyLoggedInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if(currentlyLoggedInUserId == null)
             {
-                // Find id of currently logged in user
-                string Id = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-                // Find user in db using its id
-                ApplicationUser? user = await _context.ApplicationUsers.FindAsync(Id);
-
-                if (user != null)
-                {
-                    // Map from view model to model
-                    EstateProperty estateProperty = new EstateProperty()
-                    {
-                        Name = property.Name,
-                        Description = property.Description,
-                        Address = property.Address,
-                        UrlImages = property.UrlImages,
-                        Price = property.Price,
-                        SaleOrRentModelId = property.SaleOrRentModelId,
-                        OwnerName = property.OwnerName,
-                        PropertyCategoryId = property.PropertyCategoryId,
-                        ApplicationUserId = user.Id
-                    };
-
-                    // Create
-                    await this._context.EstateProperties.AddAsync(estateProperty);
-
-                    // Save
-                    await _context.SaveChangesAsync();
-
-                    return RedirectToAction(nameof(Index));
-                    
-                }
+                return Unauthorized();
             }
-            ViewData["SaleOrRentModelId"] = new SelectList(_context.SaleorRentModel, "Id", "Name", property.SaleOrRentModelId);
-            ViewData["PropertyCategoryId"] = new SelectList(_context.PropertyCategories, "Id", "Name", property.PropertyCategoryId);
-            return View(property);
+
+            ApplicationUser? user = await _context.ApplicationUsers.FindAsync(currentlyLoggedInUserId);
+
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                var saleOrRentModels = await this._saleOrRentRepository.GetAllSaleOrRent();
+                var propertyCategories = await this._propertyCategoryRepository.GetAllPropertyCategories();
+
+                ViewData["SaleOrRentModelId"] = new SelectList(saleOrRentModels, "Id", "Name", newProperty.SaleOrRentModelId);
+                ViewData["PropertyCategoryId"] = new SelectList(propertyCategories, "Id", "Name", newProperty.PropertyCategoryId);
+                return View(newProperty);
+            }
+
+            await this._estatePropertyRepository.AddEstateProperty(user.Id, newProperty);
+
+            return RedirectToAction(nameof(Index));
         }
 
-
         [HttpGet]
-        public IActionResult CreatePropOwner()
+        public async Task<IActionResult> CreatePropOwner()
         {
-            ViewData["SaleOrRentModelId"] = new SelectList(_context.SaleorRentModel, "Id", "Name");
-            ViewData["PropertyCategoryId"] = new SelectList(_context.PropertyCategories, "Id", "Name");
+            var propertyCategories = await this._propertyCategoryRepository.GetAllPropertyCategories();
+            var saleOrRentModels = await this._saleOrRentRepository.GetAllSaleOrRent();
+
+            ViewData["PropertyCategoryId"] = new SelectList(propertyCategories, "Id", "Name");
+            ViewData["SaleOrRentModelId"] = new SelectList(saleOrRentModels, "Id", "Name");
+
             return View();
         }
 
-
         [ValidateAntiForgeryToken]
         [HttpPost]
-        public async Task<IActionResult> CreatePropOwner(CreatePropertyViewModel property)
+        public async Task<IActionResult> CreatePropOwner(CreatePropertyViewModel newProperty)
         {
-            if (ModelState.IsValid)
+            string currentlyLoggedInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (currentlyLoggedInUserId == null)
             {
-                // Find id of currently logged in user
-                string Id = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-                // Find user in db using its id
-                ApplicationUser? user = await _context.ApplicationUsers.FindAsync(Id);
-
-                if (user != null)
-                {
-                    // Map from view model to model
-                    EstateProperty estateProperty = new EstateProperty()
-                    {
-                        Name = property.Name,
-                        Description = property.Description,
-                        Address = property.Address,
-                        UrlImages = property.UrlImages,
-                        Price = property.Price,
-                        SaleOrRentModelId = property.SaleOrRentModelId,
-                        OwnerName = property.OwnerName,
-                        PropertyCategoryId = property.PropertyCategoryId,
-                        ApplicationUserId = user.Id
-                    };
-
-                    // Create
-                    await this._context.EstateProperties.AddAsync(estateProperty);
-
-                    // Save
-                    await _context.SaveChangesAsync();
-
-                    //return RedirectToAction(nameof(Properties));
-                    return RedirectToAction("CreatePropertyComplete", "Properties");
-                }
+                return Unauthorized();
             }
-            ViewData["SaleOrRentModelId"] = new SelectList(_context.SaleorRentModel, "Id", "Name", property.SaleOrRentModelId);
-            ViewData["PropertyCategoryId"] = new SelectList(_context.PropertyCategories, "Id", "Name", property.PropertyCategoryId);
-            return View(property);
+
+            ApplicationUser? user = await _context.ApplicationUsers.FindAsync(currentlyLoggedInUserId);
+
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                var saleOrRentModels = await this._saleOrRentRepository.GetAllSaleOrRent();
+                var propertyCategories = await this._propertyCategoryRepository.GetAllPropertyCategories();
+
+                ViewData["SaleOrRentModelId"] = new SelectList(saleOrRentModels, "Id", "Name", newProperty.SaleOrRentModelId);
+                ViewData["PropertyCategoryId"] = new SelectList(propertyCategories, "Id", "Name", newProperty.PropertyCategoryId);
+                
+                return View(newProperty);
+            }
+
+            await this._estatePropertyRepository.AddEstateProperty(user.Id, newProperty);
+
+            return RedirectToAction("CreatePropertyComplete", "Properties");
         }
+
         [Authorize(Roles = "Owner")]
         [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.EstateProperties == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var @property = await _context.EstateProperties
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (@property == null)
-            {
-                return NotFound();
-            }
+            var estateProperty = await this._estatePropertyRepository.GetEstatePropertyById((int)id);
 
-            // Map from model to view model
             var propertyViewModel = new EditPropertyViewModel()
             {
-                Name = @property.Name,
-                Description = @property.Description,
-                Address = @property.Address,
-                UrlImages = @property.UrlImages,
-                Price = @property.Price,
-                SaleOrRentModelId = @property.SaleOrRentModelId,
-                OwnerName = @property.OwnerName,
-                PropertyCategoryId = @property.PropertyCategoryId
+                Name = estateProperty.Name,
+                Description = estateProperty.Description,
+                Address = estateProperty.Address,
+                UrlImages = estateProperty.UrlImages,
+                Price = estateProperty.Price,
+                SaleOrRentModelId = estateProperty.SaleOrRentModelId,
+                OwnerName = estateProperty.OwnerName,
+                PropertyCategoryId = estateProperty.PropertyCategoryId
             };
-            ViewData["SaleOrRentModelId"] = new SelectList(_context.SaleorRentModel, "Id", "Name", property.SaleOrRentModelId);
-            ViewData["PropertyCategoryId"] = new SelectList(_context.PropertyCategories, "Id", "Name", property.PropertyCategoryId);
+
+            var saleOrRentModels = await this._saleOrRentRepository.GetAllSaleOrRent();
+            var propertyCategories = await this._propertyCategoryRepository.GetAllPropertyCategories();
+
+            ViewData["SaleOrRentModelId"] = new SelectList(saleOrRentModels, "Id", "Name", estateProperty.SaleOrRentModelId);
+            ViewData["PropertyCategoryId"] = new SelectList(propertyCategories, "Id", "Name", estateProperty.PropertyCategoryId);
 
             return View(propertyViewModel);
         }
 
-        // POST: Properties/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Owner")]
-        public async Task<IActionResult> Edit(int id, EditPropertyViewModel property)
+        public async Task<IActionResult> Edit(int id, EditPropertyViewModel estatePropertyToBeUpdated)
         {
-            if (id != property.Id || _context.EstateProperties == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            if (id != estatePropertyToBeUpdated.Id)
             {
-                // Find the property in the database
-                var estateProperty = await _context.EstateProperties.FindAsync(id);
-
-                if (estateProperty == null)
-                {
-                    return NotFound();
-                }
-
-                // Update the property with the values from the view model
-                estateProperty.Name = property.Name;
-                estateProperty.Description = property.Description;
-                estateProperty.Address = property.Address;
-                estateProperty.UrlImages = property.UrlImages;
-                estateProperty.Price = property.Price;
-                estateProperty.SaleOrRentModelId = property.SaleOrRentModelId;
-                estateProperty.OwnerName = property.OwnerName;
-                estateProperty.PropertyCategoryId = property.PropertyCategoryId;
-                // Save the changes to the database
-                _context.EstateProperties.Update(estateProperty);
-                await _context.SaveChangesAsync();
-
-                //return RedirectToAction(nameof(Index));
-                //return RedirectToAction("UpdatedSuccessfully", "Properties");
-                return RedirectToAction("EditPropertyComplete", "Properties");
+                return NotFound();
             }
-            ViewData["SaleOrRentModelId"] = new SelectList(_context.SaleorRentModel, "Id", "Name", property.SaleOrRentModelId);
-            ViewData["PropertyCategoryId"] = new SelectList(_context.PropertyCategories, "Id", "Name", property.PropertyCategoryId);
-            return View(property);
+
+            if (!ModelState.IsValid)
+            {
+                var saleOrRentModels = await this._saleOrRentRepository.GetAllSaleOrRent();
+                var propertyCategories = await this._propertyCategoryRepository.GetAllPropertyCategories();
+
+                ViewData["SaleOrRentModelId"] = new SelectList(saleOrRentModels, "Id", "Name", estatePropertyToBeUpdated.SaleOrRentModelId);
+                ViewData["PropertyCategoryId"] = new SelectList(propertyCategories, "Id", "Name", estatePropertyToBeUpdated.PropertyCategoryId);
+
+                return View(estatePropertyToBeUpdated);
+            }
+
+            await this._estatePropertyRepository.UpdateEstateProperty(id, estatePropertyToBeUpdated);
+
+            return RedirectToAction("EditPropertyComplete", "Properties");
         }
+
         [Authorize(Roles = "Admin")]
-        // GET: Properties/Edit/5
         public async Task<IActionResult> EditAdmin(int? id)
         {
-            if (id == null || _context.EstateProperties == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var @property = await _context.EstateProperties
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (@property == null)
-            {
-                return NotFound();
-            }
+            var estateProperty = await this._estatePropertyRepository.GetEstatePropertyById((int)id);
 
-            // Map from model to view model
             var propertyViewModel = new EditPropertyViewModel()
             {
-                Name = @property.Name,
-                Description = @property.Description,
-                Address = @property.Address,
-                UrlImages = @property.UrlImages,
-                Price = @property.Price,
-                SaleOrRentModelId = @property.SaleOrRentModelId,
-                OwnerName = @property.OwnerName,
-                PropertyCategoryId = @property.PropertyCategoryId
+                Name = estateProperty.Name,
+                Description = estateProperty.Description,
+                Address = estateProperty.Address,
+                UrlImages = estateProperty.UrlImages,
+                Price = estateProperty.Price,
+                SaleOrRentModelId = estateProperty.SaleOrRentModelId,
+                OwnerName = estateProperty.OwnerName,
+                PropertyCategoryId = estateProperty.PropertyCategoryId
             };
-            ViewData["SaleOrRentModelId"] = new SelectList(_context.SaleorRentModel, "Id", "Name", property.SaleOrRentModelId);
-            ViewData["PropertyCategoryId"] = new SelectList(_context.PropertyCategories, "Id", "Name", property.PropertyCategoryId);
+
+            var saleOrRentModels = await this._saleOrRentRepository.GetAllSaleOrRent();
+            var propertyCategories = await this._propertyCategoryRepository.GetAllPropertyCategories();
+
+            ViewData["SaleOrRentModelId"] = new SelectList(saleOrRentModels, "Id", "Name", estateProperty.SaleOrRentModelId);
+            ViewData["PropertyCategoryId"] = new SelectList(propertyCategories, "Id", "Name", estateProperty.PropertyCategoryId);
 
             return View(propertyViewModel);
         }
 
-        // POST: Properties/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> EditAdmin(int id, EditPropertyViewModel property)
+        public async Task<IActionResult> EditAdmin(int id, EditPropertyViewModel estatePropertyToBeUpdated)
         {
-            if (id != property.Id || _context.EstateProperties == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            if (id != estatePropertyToBeUpdated.Id)
             {
-                // Find the property in the database
-                var estateProperty = await _context.EstateProperties.FindAsync(id);
-
-                if (estateProperty == null)
-                {
-                    return NotFound();
-                }
-
-                // Update the property with the values from the view model
-                estateProperty.Name = property.Name;
-                estateProperty.Description = property.Description;
-                estateProperty.Address = property.Address;
-                estateProperty.UrlImages = property.UrlImages;
-                estateProperty.Price = property.Price;
-                estateProperty.SaleOrRentModelId = property.SaleOrRentModelId;
-                estateProperty.OwnerName = property.OwnerName;
-                estateProperty.PropertyCategoryId = property.PropertyCategoryId;
-                // Save the changes to the database
-                _context.EstateProperties.Update(estateProperty);
-                await _context.SaveChangesAsync();
-
-                //return RedirectToAction(nameof(Index));
-                //return RedirectToAction("UpdatedSuccessfully", "Properties");
-                return RedirectToAction("Index", "Properties");
+                return NotFound();
             }
-            ViewData["SaleOrRentModelId"] = new SelectList(_context.SaleorRentModel, "Id", "Name", property.SaleOrRentModelId);
-            ViewData["PropertyCategoryId"] = new SelectList(_context.PropertyCategories, "Id", "Name", property.PropertyCategoryId);
-            return View(property);
+
+            if (!ModelState.IsValid)
+            {
+                var saleOrRentModels = await this._saleOrRentRepository.GetAllSaleOrRent();
+                var propertyCategories = await this._propertyCategoryRepository.GetAllPropertyCategories();
+
+                ViewData["SaleOrRentModelId"] = new SelectList(saleOrRentModels, "Id", "Name", estatePropertyToBeUpdated.SaleOrRentModelId);
+                ViewData["PropertyCategoryId"] = new SelectList(propertyCategories, "Id", "Name", estatePropertyToBeUpdated.PropertyCategoryId);
+
+                return View(estatePropertyToBeUpdated);
+            }
+
+            await this._estatePropertyRepository.UpdateEstateProperty(id, estatePropertyToBeUpdated);
+
+            return RedirectToAction("Index", "Properties");
         }
 
         [Authorize(Roles = "Admin, Owner")]
-        // GET: Properties/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.EstateProperties == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var @property = await _context.EstateProperties
-                .Include(a => a.PropertyCategory)
-                .Include(a => a.SaleOrRentModel)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (@property == null)
-            {
-                return NotFound();
-            }
+            var estateProperty = await this._estatePropertyRepository.GetEstatePropertyWithRelatedEntitiesById((int)id);
 
-            return View(@property);
+            return View(estateProperty);
         }
 
-        // POST: Properties/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.EstateProperties == null)
-            {
-                return Problem("Entity set 'RealEstateDbContext.Properties'  is null.");
-            }
-            var @property = await _context.EstateProperties.FindAsync(id);
-            if (@property != null)
-            {
-                _context.EstateProperties.Remove(@property);
-            }
+            await this._estatePropertyRepository.DeleteEstateProperty(id);
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+
         [HttpGet]
         public IActionResult ListByCategory()
         {
             return View();
         }
+
         [HttpPost]
         public async Task<IActionResult> ListByCategory(int? id)
         {
@@ -468,32 +350,23 @@ namespace Real_Estate.Controllers
                 return NotFound();
             }
 
-            var properties = await _context.EstateProperties.Include(p => p.PropertyCategory)
-                .Where(p => p.PropertyCategoryId == id)
-                .ToListAsync();
+            var estateProperties = await this._estatePropertyRepository.GetEstatePropertiesByPropertyCategory((int)id);
 
-            if (properties == null || properties.Count == 0)
+            if (estateProperties == null || estateProperties.Count == 0)
             {
-                return NotFound();
+                return NotFound("No Estate Properties available!");
             }
 
-            var categories = await _context.PropertyCategories.ToListAsync();
+            var propertyCategories = await this._propertyCategoryRepository.GetAllPropertyCategories();
 
-            var viewModel = new PropertyListViewModel
+            var propertyListViewModel = new PropertyListViewModel
             {
-                Properties = properties,
-                Categories = categories,
+                Properties = estateProperties,
+                Categories = propertyCategories,
                 Id = id.Value
             };
 
-            return View(properties);
+            return View(propertyListViewModel);
         }
-
-        private bool PropertyExists(int id)
-        {
-            return (_context.EstateProperties?.Any(e => e.Id == id)).GetValueOrDefault();
-        }
-
-
     }
 }

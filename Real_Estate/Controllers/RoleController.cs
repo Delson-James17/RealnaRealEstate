@@ -10,10 +10,12 @@ namespace Real_Estate.Controllers
     public class RoleController : Controller
     {
         public RoleManager<IdentityRole> _roleManager { get; }
+        
         public RoleController(RoleManager<IdentityRole> roleManager)
         {
             _roleManager = roleManager;
         }
+
         [HttpGet]
         public IActionResult Create()
         {
